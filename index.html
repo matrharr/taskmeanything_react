@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TaskMeAnything</title>
+  <script src="https://npmcdn.com/react@15.3.1/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.1/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+    <script src="https://npmcdn.com/jquery@3.1.0/dist/jquery.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <script type="text/babel">
+      var data = [
+        {"id":1,"title":"Wash the car","description":"Wash and wax the Tesla","created_at":"2016-07-01T01:49:40.677Z","updated_at":"2016-07-01T01:49:40.677Z"},
+        {"id":2,"title":"Learn React","description":"Make some time to learn react!","created_at":"2016-07-01T01:50:27.999Z","updated_at":"2016-07-01T01:50:27.999Z"},
+        {"id":4,"title":"Review Matts PR","description":"This should be fun - Edited","created_at":"2016-07-05T20:00:17.900Z","updated_at":"2016-07-05T20:01:04.917Z"}
+      ]
+
+      var TaskRow = React.createClass({
+        render: function() {
+          return (
+            <div className="taskRow">
+              <h2 className="taskTitle">{this.props.title}</h2>
+              {this.props.children}
+            </div>
+          )
+        }
+      })
+
+      var TaskTable = React.createClass({
+        render: function() {
+          console.log(this.props.data)
+          var taskNodes = this.props.data.map(function(task){
+            return (
+              <TaskRow title={task.title} key={task.id}>
+                {task.description}
+              </TaskRow>
+            );
+          });
+          return (
+            <div className="taskTable">
+              {taskNodes}
+            </div>
+          );
+        }
+      });
+
+      var AddTaskForm = React.createClass({
+        render: function() {
+          return (
+            <div className="addTaskForm">
+              Hi, I'm a task form
+            </div>
+          );
+        }
+      });
+
+      var UpdatableTaskTable = React.createClass({
+        getInitialState: function() {
+          return {data: []};
+        },
+        componentDidMount: function() {
+          $.ajax({
+            url: this.props.url + "/tasks",
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+              this.setState({data:data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+              console.error(this.props.url, status, err.toString());
+            }.bind(this)
+          });
+        },
+        render: function() {
+          return (
+            <div className="updatableTaskTable">
+              <h1>TaskMeAnything</h1>
+              <AddTaskForm />
+              <TaskTable data={this.state.data}/>
+            </div>
+          );
+        }
+      });
+
+      ReactDOM.render(
+        <UpdatableTaskTable url="https://taskmeanything.herokuapp.com/v1"/>,
+        document.getElementById('content')
+      );
+
+    </script>
+  </div>
+
+</body>
+
+</html>
